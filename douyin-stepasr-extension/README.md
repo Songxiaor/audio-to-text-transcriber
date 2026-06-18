@@ -1,4 +1,6 @@
-# Audio to Text Transcriber
+# 音频转文案插件
+
+扩展名称：Audio to Text Transcriber
 
 一个可本地加载的 Chrome / Chromium / ChatGPT Atlas MV3 音频转文案扩展，用于从受支持的视频页面提取当前媒体音轨，并调用用户自己的 ASR API 生成文案转写。当前 ASR 服务适配 StepFun `stepaudio-2.5-asr`，平台适配覆盖抖音和小红书。
 

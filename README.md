@@ -1,34 +1,36 @@
-# Audio to Text Transcriber
+# 音频转文案插件
 
-Chrome / Chromium MV3 extension for turning supported web video audio into text with a user-provided ASR API key.
+扩展名称：Audio to Text Transcriber
 
-The extension is intentionally named by its core job: audio-to-text transcription. Platform adapters and ASR provider integration are implementation details. The current build supports Douyin and Xiaohongshu page adapters, and uses the StepFun StepAudio ASR endpoint by default.
+这是一个 Chrome / Chromium MV3 扩展，用于把受支持网页视频里的音频转成文案。插件的命名按核心任务来定：音频转文字。平台适配和 ASR 服务适配只是实现细节。
 
-## Project Layout
+当前版本支持抖音和小红书页面适配，默认使用用户自己配置的 StepFun StepAudio ASR 接口。
 
-- `douyin-stepasr-extension/`: extension source.
-- `scripts/`: release checks, unit checks, store asset generation, and optional live ASR smoke test.
-- `store-assets/`: Chrome Web Store screenshots and promo image.
-- `build-package.sh`: creates release ZIP/CRX artifacts under `dist/`.
+## 目录结构
 
-## Build
+- `douyin-stepasr-extension/`：扩展源码。
+- `scripts/`：发布校验、单元测试、商店素材生成、可选的真实 ASR 连通性测试脚本。
+- `store-assets/`：Chrome Web Store 截图和推广图。
+- `build-package.sh`：生成发布 ZIP / CRX 包，输出到 `dist/`。
+
+## 构建与校验
 
 ```bash
 node scripts/verify-release.mjs
 ./build-package.sh
 ```
 
-Release artifacts:
+构建后会生成：
 
 - `dist/audio-to-text-transcriber-<version>.zip`
 - `dist/audio-to-text-transcriber-<version>.crx`
 - `dist/audio-to-text-transcriber-latest.zip`
 - `dist/audio-to-text-transcriber-latest.crx`
 
-The signing key is intentionally excluded from git. Local builds reuse `signing-key/stepaudio-douyin-transcriber.pem` when present to preserve the extension ID across the historical rename.
+签名 key 不进入 git。若本地存在 `signing-key/stepaudio-douyin-transcriber.pem`，构建脚本会复用这个历史签名 key，以保持改名后的扩展 ID 不变，避免用户本地设置和历史记录丢失。
 
-## Privacy Boundary
+## 隐私边界
 
-The extension stores settings and transcription history in local browser extension storage. Audio is sent to the configured ASR endpoint only when the user triggers transcription. Optional Feishu sync sends selected records only when the user triggers a sync action.
+插件把设置和转写历史保存在浏览器扩展本地存储中。只有用户主动点击转写时，音频数据才会发送到已配置的 ASR 接口。飞书同步是可选功能，只会在用户主动点击同步操作时发送选中的记录。
 
-See `douyin-stepasr-extension/PRIVACY.md` for the full policy draft.
+完整隐私说明见 `douyin-stepasr-extension/PRIVACY.md`。

@@ -1,0 +1,14 @@
+.DS_Store
+dist/
+signing-key/
+*.crx
+*.pem
+douyin-stepasr-extension/_metadata/
+douyin-stepasr-extension/PROGRESS.md
+PROGRESS.md
+atlas-*.png
+.learnings/
+icon-concepts/
+node_modules/
+.env
+.env.*

@@ -1,0 +1,120 @@
+{
+  "manifest_version": 3,
+  "name": "Audio to Text Transcriber",
+  "version": "3.0.2",
+  "description": "Extract audio from supported web videos and transcribe it with a user-provided ASR API key.",
+  "minimum_chrome_version": "116",
+  "permissions": [
+    "clipboardRead",
+    "clipboardWrite",
+    "declarativeNetRequest",
+    "declarativeNetRequestWithHostAccess",
+    "downloads",
+    "offscreen",
+    "scripting",
+    "sidePanel",
+    "storage"
+  ],
+  "host_permissions": [
+    "*://douyin.com/*",
+    "*://www.douyin.com/*",
+    "*://*.douyin.com/*",
+    "*://*.douyinvod.com/*",
+    "*://*.douyincdn.com/*",
+    "*://*.douyinstatic.com/*",
+    "*://xiaohongshu.com/*",
+    "*://www.xiaohongshu.com/*",
+    "*://*.xiaohongshu.com/*",
+    "*://*.xhscdn.com/*",
+    "*://*.bytegoofy.com/*",
+    "*://*.byteimg.com/*",
+    "*://*.zjcdn.com/*",
+    "https://open.feishu.cn/*",
+    "https://api.stepfun.com/*",
+    "https://api.stepfun.ai/*"
+  ],
+  "optional_host_permissions": [
+    "https://*/*",
+    "http://localhost/*",
+    "http://127.0.0.1/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://douyin.com/*",
+        "*://www.douyin.com/*",
+        "*://*.douyin.com/*"
+      ],
+      "js": [
+        "platform-adapter-core.js",
+        "douyin-detector.js",
+        "douyin-adapter.js",
+        "postprocess.js",
+        "content.js"
+      ],
+      "css": [
+        "content.css"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "*://xiaohongshu.com/*",
+        "*://www.xiaohongshu.com/*",
+        "*://*.xiaohongshu.com/*"
+      ],
+      "js": [
+        "xiaohongshu-feed-hook.js"
+      ],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": [
+        "*://xiaohongshu.com/*",
+        "*://www.xiaohongshu.com/*",
+        "*://*.xiaohongshu.com/*"
+      ],
+      "js": [
+        "platform-adapter-core.js",
+        "xiaohongshu-adapter.js",
+        "postprocess.js",
+        "content.js"
+      ],
+      "css": [
+        "content.css"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "action": {
+    "default_title": "Audio to Text Transcriber",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "douyin_media_headers",
+        "enabled": true,
+        "path": "rules.json"
+      }
+    ]
+  }
+}

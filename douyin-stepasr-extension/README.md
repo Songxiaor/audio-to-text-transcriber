@@ -1,0 +1,119 @@
+# Audio to Text Transcriber
+
+一个可本地加载的 Chrome / Chromium / ChatGPT Atlas MV3 音频转文案扩展，用于从受支持的视频页面提取当前媒体音轨，并调用用户自己的 ASR API 生成文案转写。当前 ASR 服务适配 StepFun `stepaudio-2.5-asr`，平台适配覆盖抖音和小红书。
+
+## 当前功能
+
+- 抖音和小红书页面右下角注入「转写」浮窗。
+- 点击「转写」会自动先检测当前媒体，识别成功后直接进入转写；「检测媒体诊断」保留为手动排查入口。
+- 转写中会在浮窗结果区显示实时流式文本；无流式增量时显示动态进度提示。
+- 转写中主按钮会切换为「取消」，可中断正在进行的请求。
+- 提供「下载音频」和「下载视频」按钮，使用浏览器下载管理器保存当前平台资源。
+- 内置可测试的抖音 ID 检测模块，覆盖单条视频页、浮层 `modal_id`、URL 编码、页面脚本、可见视频容器和本地页面状态。
+- 侧边栏保存 StepFun API Key、Endpoint、Model、语言、热词和 Prompt。
+- 首次使用且尚未保存 API Key 时，侧边栏会自动展开「首次使用」和「API 设置」。
+- 设置页可直接测试 StepAudio API Key 和 Endpoint 是否连通。
+- StepAudio API 报错会分类提示：Key 无效、权限不足、额度/限流、参数错误或服务不可用。
+- API Key 输入框支持直接粘贴、按钮读取剪贴板、显示/隐藏。
+- API Key 会自动清理 `Bearer ...` 或 `Authorization: Bearer ...` 前缀；插件本地只检查非空，具体有效性由 StepAudio 服务端返回。
+- 自动读取抖音单条视频详情，转写时优先提取 `music.play_url`，失败时尝试视频音轨；下载时可明确选择音频或视频资源。
+- 媒体选择、格式判断和转码决策有独立测试覆盖，减少抖音详情结构变化导致的隐藏失败。
+- 抖音详情接口失败时，会从当前页面可见视频、`source` 元素、页面脚本和资源记录里兜底提取媒体地址。
+- 小红书适配器会优先读取页面 `__INITIAL_STATE__` 中的笔记详情和视频流地址，失败时兜底扫描非 `blob:` 的 `<video>` 地址；图文笔记会提示没有视频可转写。
+- 支持 mp3 / wav / ogg 直接提交给 StepAudio。
+- 不支持的媒体格式会自动转为 16k mono PCM 后提交。
+- 转写结果显示在页面浮窗，附带字数统计，并保存到本地历史记录。
+- 历史记录卡片显示字数，列表高度会随侧边栏和后处理面板状态自适应。
+- 历史记录支持常驻导出入口，可导出 TXT / Markdown / JSON；多选模式保留批量复制、同步、导出和删除。
+- 可选同步到飞书多维表格：用户在侧边栏填写自己的飞书 app_id、app_secret 和多维表格链接后，可手动把选中的转写记录写入指定表格。
+- 侧边栏支持快捷键：历史记录卡片聚焦时 Ctrl/Cmd+C 复制文案，Escape 退出多选。
+- 转写稿后处理选项（智能分段、标点规范化、去口水词）会保存到本地并在刷新后恢复。
+- 如果无法识别当前视频，可一键生成可复制的诊断信息。
+- 首次安装或浏览器启动时会尝试把浮窗注入到已打开的抖音/小红书标签页；如果浏览器限制注入，刷新页面即可触发内容脚本。
+- 设置页可复制一份不含 API Key、热词原文、Prompt 和转写正文的诊断报告，包含最近一次 API 测试、视频 ID 检测的来源和候选数量，便于远程排查权限、版本、配置和页面识别状态。
+- 点击扩展图标会打开浏览器右侧侧边栏；不再提供整页设置页标签入口。
+- 浮窗和设置页会显示当前扩展版本，方便确认用户是否已经重新加载最新包。
+- 当前版本：3.0.2。
+
+## 安装方式
+
+普通用户无“来源无法验证”提示的安装，需要走 Chrome Web Store 或浏览器支持的扩展商店发布。本地 CRX / 开发者模式加载只适合测试，会被浏览器标记为未验证来源。
+
+### 开发者模式加载
+
+1. 打开 `chrome://extensions/` 或 Atlas 的 `atlas://extensions/`。
+2. 开启「开发者模式」。
+3. 点击「加载未打包的扩展程序」。
+4. 选择本目录：`douyin-stepasr-extension`。
+5. 打开扩展侧边栏，填入 StepFun API Key 并保存。
+
+### 打包分发
+
+在上级目录执行：
+
+```bash
+./build-package.sh
+```
+
+发布前也可以单独运行校验：
+
+```bash
+node scripts/verify-release.mjs
+```
+
+如果需要在本机临时验证真实 StepAudio Key，不要把 Key 写入文件。可以在上级目录执行，脚本会在终端里隐藏输入：
+
+```bash
+node scripts/live-test-stepaudio.mjs
+```
+
+脚本输出只包含 `configuredEndpoint`、实际使用的 `usedEndpoint`、模型和测试结果，不会打印 API Key。
+
+脚本会生成：
+
+- `dist/audio-to-text-transcriber-<version>.zip`
+- 如果本机有 Google Chrome，还会尝试生成 `.crx` 安装包。
+- `dist/audio-to-text-transcriber-latest.zip`
+- `dist/audio-to-text-transcriber-latest.crx`
+
+本地 CRX 包会复用 `../signing-key/stepaudio-douyin-transcriber.pem` 这个历史签名 key，保证后续版本升级时扩展 ID 不变，用户本地设置和历史不会因为改名丢失。
+
+## API 配置
+
+默认 Endpoint：
+
+```text
+https://api.stepfun.com/step_plan/v1/audio/asr/sse
+https://api.stepfun.ai/step_plan/v1/audio/asr/sse
+```
+
+中文 Step Plan 套餐默认使用 `.com` 域名；扩展也会兼容 `.ai` 域名。如果一个域名返回鉴权/权限错误，扩展会自动尝试另一个官方 Step Plan Endpoint。
+
+默认 Model：
+
+```text
+stepaudio-2.5-asr
+```
+
+API Key 存在浏览器本地 `chrome.storage.local`，不会写入页面 DOM。这个版本是纯插件直连模式，适合个人和小范围分发。大规模商业分发时建议改成「插件 -> 你的后端 -> StepFun API」，避免用户 Key 暴露在浏览器扩展环境里。
+
+如果使用自定义 Endpoint，保存设置时浏览器会请求该 API 域名的访问权限；官方 StepFun Endpoint 默认已在扩展权限内。
+
+## 飞书同步配置
+
+飞书同步是可选功能，只在用户点击「同步到飞书」或「批量同步飞书」时触发。插件会把用户填写的飞书 `app_id`、`app_secret`、多维表格链接和字段映射保存在浏览器本地 `chrome.storage.local`，用于向飞书请求 tenant access token 并写入指定多维表格记录。同步内容来自用户选择的本地转写历史，不会自动上传全部历史。
+
+## 已知限制
+
+- 已支持从抖音单条视频页、浮层 URL、URL 编码参数、当前可见视频、页面脚本和本地页面状态里检测视频 ID；抖音接口和页面结构仍可能变化，后续需要按实际失败样本维护提取逻辑。
+- 小红书直链提取依赖页面 `__INITIAL_STATE__` 和视频 CDN 字段，当前已做多路径兜底，但仍需要在真实登录态页面验证不同笔记结构。
+- 长视频转写会占用较多浏览器内存，因为纯插件模式需要下载媒体并转 base64；单独下载音频/视频走浏览器下载管理器，不会先转 base64。
+- 未接入账号、额度、支付和云端历史，这些属于后端 SaaS 层。
+
+## 失败排查
+
+1. 点击扩展图标打开侧边栏。先保存 API Key，再用「测试 API」验证 Endpoint、权限和模型名是否可用。
+2. 打开单条抖音或小红书视频页后，直接点浮窗里的「转写」；插件会自动检测媒体并继续转写。
+3. 如果没有检测到媒体，结果区会显示诊断信息，点「复制诊断」后把内容发给维护者。
+4. 如果 StepAudio API 报错，按设置页提示检查 API Key、Endpoint、模型名、权限和订阅额度。中文 Step Plan 套餐优先使用 `https://api.stepfun.com/step_plan/v1/audio/asr/sse`。
+5. 如果仍无法定位，先在设置页点一次「测试 API」，再在视频页点一次「检测媒体诊断」，然后打开设置页点击「复制诊断」，把报告发给维护者；报告不会包含 API Key 和转写正文。

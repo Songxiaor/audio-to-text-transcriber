@@ -1,0 +1,470 @@
+.stepasr-widget,
+.stepasr-widget * {
+  box-sizing: border-box;
+}
+
+.stepasr-widget {
+  --stepasr-text: #111827;
+  --stepasr-muted: #6b7280;
+  --stepasr-muted-strong: #4b5563;
+  --stepasr-subtle: #9ca3af;
+  --stepasr-panel: #ffffff;
+  --stepasr-panel-soft: #f9fafb;
+  --stepasr-control: #f3f4f6;
+  --stepasr-line: #e5e7eb;
+  --stepasr-line-strong: #d1d5db;
+  --stepasr-primary: #111827;
+  --stepasr-primary-text: #ffffff;
+  --stepasr-card-border: rgba(17, 24, 39, 0.12);
+  --stepasr-pill-border: rgba(17, 24, 39, 0.14);
+  --stepasr-head-border: rgba(17, 24, 39, 0.08);
+  --stepasr-panel-glass: rgba(255, 255, 255, 0.97);
+  --stepasr-pill-glass: rgba(255, 255, 255, 0.96);
+  --stepasr-primary-muted: rgba(255, 255, 255, 0.78);
+  --stepasr-shadow: rgba(15, 23, 42, 0.18);
+  --stepasr-shadow-strong: rgba(15, 23, 42, 0.22);
+  --stepasr-active-shadow: rgba(15, 23, 42, 0.12);
+  --stepasr-toast-bg: rgba(17, 24, 39, 0.94);
+  position: fixed;
+  right: 16px;
+  bottom: 96px;
+  z-index: 2147483647;
+  width: min(292px, calc(100vw - 20px));
+  color: var(--stepasr-text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.stepasr-widget.stepasr-collapsed {
+  width: auto;
+  max-width: calc(100vw - 20px);
+}
+
+.stepasr-widget.stepasr-dragging {
+  user-select: none;
+}
+
+.stepasr-pill {
+  display: none;
+  align-items: center;
+  gap: 4px;
+  max-width: calc(100vw - 20px);
+  padding: 4px;
+  border: 1px solid var(--stepasr-pill-border);
+  border-radius: 999px;
+  background: var(--stepasr-pill-glass);
+  box-shadow: 0 12px 32px var(--stepasr-shadow-strong);
+  backdrop-filter: blur(12px);
+  touch-action: none;
+}
+
+.stepasr-collapsed .stepasr-pill {
+  display: inline-flex;
+}
+
+.stepasr-pill-grip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  min-height: 32px;
+  color: var(--stepasr-subtle);
+  cursor: grab;
+  font-size: 13px;
+  line-height: 1;
+  user-select: none;
+}
+
+.stepasr-dragging .stepasr-pill-grip {
+  cursor: grabbing;
+}
+
+.stepasr-pill-main,
+.stepasr-pill-icon,
+.stepasr-icon-btn,
+.stepasr-primary,
+.stepasr-detect,
+.stepasr-secondary {
+  min-height: 32px;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  font: inherit;
+}
+
+.stepasr-pill-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 12px;
+  border-radius: 999px;
+  color: var(--stepasr-primary-text);
+  background: var(--stepasr-primary);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.stepasr-pill-icon {
+  min-width: 52px;
+  padding: 0 8px;
+  border-radius: 999px;
+  color: var(--stepasr-muted-strong);
+  background: var(--stepasr-control);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.stepasr-card {
+  overflow: hidden;
+  border: 1px solid var(--stepasr-card-border);
+  border-radius: 8px;
+  background: var(--stepasr-panel-glass);
+  box-shadow: 0 16px 38px var(--stepasr-shadow);
+  backdrop-filter: blur(12px);
+}
+
+.stepasr-collapsed .stepasr-card {
+  display: none;
+}
+
+.stepasr-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--stepasr-head-border);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.stepasr-dragging .stepasr-head {
+  cursor: grabbing;
+}
+
+.stepasr-title {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stepasr-version {
+  color: var(--stepasr-muted);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.stepasr-pill-main .stepasr-version {
+  color: var(--stepasr-primary-muted);
+}
+
+/* Collapsed state busy indicator */
+.stepasr-pill-busy {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  min-height: 32px;
+}
+
+.stepasr-collapsed.stepasr-busy .stepasr-pill-busy {
+  display: inline-flex;
+}
+
+.stepasr-pill-busy-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--stepasr-primary);
+  animation: stepasr-pulse 1.2s ease-in-out infinite;
+}
+
+.stepasr-pill-busy-dot:nth-child(2) { animation-delay: 0.2s; }
+.stepasr-pill-busy-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes stepasr-pulse {
+  0%, 80%, 100% { transform: scale(0.5); opacity: 0.3; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+/* Quick action row in expanded card */
+.stepasr-quick-actions {
+  display: none;
+  gap: 6px;
+}
+
+.stepasr-quick-actions.is-visible {
+  display: flex;
+}
+
+.stepasr-quick-btn {
+  flex: 1;
+  height: 28px;
+  min-height: 28px;
+  border: 1px solid var(--stepasr-line-strong);
+  border-radius: 6px;
+  color: var(--stepasr-text);
+  background: var(--stepasr-panel);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.stepasr-quick-btn:active {
+  background: var(--stepasr-control);
+}
+
+.stepasr-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: default;
+}
+
+.stepasr-icon-btn {
+  min-width: 52px;
+  height: 28px;
+  min-height: 28px;
+  padding: 0 7px;
+  color: var(--stepasr-muted-strong);
+  background: var(--stepasr-control);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.stepasr-icon-btn[data-stepasr-toggle] {
+  width: 28px;
+  min-width: 28px;
+  padding: 0;
+  font-size: 13px;
+}
+
+.stepasr-body {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+}
+
+.stepasr-primary {
+  width: 100%;
+  height: 36px;
+  color: var(--stepasr-primary-text);
+  background: var(--stepasr-primary);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.stepasr-detect {
+  width: 100%;
+  height: 32px;
+  border: 1px solid var(--stepasr-line-strong);
+  color: var(--stepasr-text);
+  background: var(--stepasr-panel);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.stepasr-primary:disabled {
+  cursor: not-allowed;
+  background: var(--stepasr-subtle);
+}
+
+.stepasr-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.stepasr-status {
+  min-height: 18px;
+  color: var(--stepasr-muted);
+  font-size: 12px;
+  line-height: 18px;
+  overflow-wrap: anywhere;
+}
+
+.stepasr-target {
+  margin: 4px 0;
+  color: var(--stepasr-muted);
+  font-size: 11px;
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stepasr-result {
+  display: none;
+  min-height: 0;
+  max-height: min(360px, 62vh);
+  padding: 9px;
+  overflow: auto;
+  resize: vertical;
+  color: var(--stepasr-text);
+  background: var(--stepasr-panel-soft);
+  border: 1px solid var(--stepasr-line);
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.stepasr-result.is-visible {
+  display: block;
+  min-height: 44px;
+}
+
+/* Typewriter cursor during streaming */
+.stepasr-result.is-streaming::after {
+  content: "▍";
+  animation: stepasr-blink 0.7s step-end infinite;
+  color: var(--stepasr-primary);
+  font-weight: 700;
+}
+
+@keyframes stepasr-blink {
+  50% { opacity: 0; }
+}
+
+.stepasr-result-count {
+  display: none;
+  margin-top: -3px;
+  color: var(--stepasr-muted);
+  font-size: 11px;
+  line-height: 1.35;
+  text-align: right;
+}
+
+.stepasr-result-count.is-visible {
+  display: block;
+}
+
+.stepasr-footer {
+  display: none;
+}
+
+.stepasr-footer.is-visible {
+  display: flex;
+}
+
+.stepasr-secondary {
+  flex: 1 1 76px;
+  height: 32px;
+  border: 1px solid var(--stepasr-line-strong);
+  border-radius: 6px;
+  color: var(--stepasr-text);
+  background: var(--stepasr-panel);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.stepasr-secondary:disabled,
+.stepasr-detect:disabled {
+  cursor: not-allowed;
+  color: var(--stepasr-subtle);
+  background: var(--stepasr-control);
+}
+
+.stepasr-toast {
+  position: fixed;
+  right: 18px;
+  bottom: 44px;
+  z-index: 2147483647;
+  max-width: min(340px, calc(100vw - 24px));
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: var(--stepasr-primary-text);
+  background: var(--stepasr-toast-bg);
+  box-shadow: 0 10px 24px var(--stepasr-shadow-strong);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 13px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  pointer-events: none;
+  white-space: normal;
+}
+
+.stepasr-widget .stepasr-toast {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 8px);
+  z-index: 3;
+  width: min(292px, calc(100vw - 20px));
+  max-width: min(292px, calc(100vw - 20px));
+}
+
+.stepasr-widget:not(.stepasr-collapsed) .stepasr-toast {
+  top: 8px;
+  right: 8px;
+  bottom: auto;
+  left: 8px;
+  width: auto;
+  max-width: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  .stepasr-widget {
+    --stepasr-text: #f3f4f6;
+    --stepasr-muted: #a3aab8;
+    --stepasr-muted-strong: #f3f4f6;
+    --stepasr-subtle: #a3aab8;
+    --stepasr-panel: #1f2937;
+    --stepasr-panel-soft: #111827;
+    --stepasr-control: #1f2937;
+    --stepasr-line: #374151;
+    --stepasr-line-strong: #374151;
+    --stepasr-primary: #111827;
+    --stepasr-primary-text: #ffffff;
+    --stepasr-card-border: rgba(255, 255, 255, 0.12);
+    --stepasr-pill-border: rgba(255, 255, 255, 0.12);
+    --stepasr-head-border: rgba(255, 255, 255, 0.1);
+    --stepasr-panel-glass: rgba(17, 24, 39, 0.96);
+    --stepasr-pill-glass: rgba(17, 24, 39, 0.96);
+    color: var(--stepasr-text);
+  }
+
+  .stepasr-pill,
+  .stepasr-card {
+    border-color: var(--stepasr-card-border);
+    background: var(--stepasr-panel-glass);
+  }
+
+  .stepasr-pill-icon,
+  .stepasr-icon-btn,
+  .stepasr-detect,
+  .stepasr-secondary {
+    color: var(--stepasr-text);
+    border-color: var(--stepasr-line-strong);
+    background: var(--stepasr-control);
+  }
+
+  .stepasr-title,
+  .stepasr-status,
+  .stepasr-result,
+  .stepasr-result-count {
+    color: var(--stepasr-text);
+  }
+
+  .stepasr-version {
+    color: var(--stepasr-muted);
+  }
+
+  .stepasr-head {
+    border-bottom-color: var(--stepasr-head-border);
+  }
+
+  .stepasr-result {
+    border-color: var(--stepasr-line-strong);
+    background: var(--stepasr-panel-soft);
+  }
+
+  .stepasr-primary {
+    background: #6366f1;
+    color: #ffffff;
+  }
+}

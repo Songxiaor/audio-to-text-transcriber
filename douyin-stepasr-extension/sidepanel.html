@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>StepAudio 文案转写</title>
+    <link rel="stylesheet" href="sidepanel.css">
+  </head>
+  <body>
+    <main class="app">
+      <header class="header">
+        <div>
+          <h1>StepAudio 文案转写</h1>
+          <p>管理抖音转写记录和 StepAudio 设置。</p>
+        </div>
+        <span id="versionBadge" class="badge" hidden></span>
+      </header>
+
+      <div id="onboarding" class="onboarding" hidden>
+        <div class="onboarding-steps">
+          <div class="onboarding-step is-active" data-step="1">
+            <span class="step-num">1</span>
+            <span>保存 API Key</span>
+          </div>
+          <div class="onboarding-arrow">→</div>
+          <div class="onboarding-step" data-step="2">
+            <span class="step-num">2</span>
+            <span>测试 API</span>
+          </div>
+          <div class="onboarding-arrow">→</div>
+          <div class="onboarding-step" data-step="3">
+            <span class="step-num">3</span>
+            <span>打开视频转写</span>
+          </div>
+        </div>
+        <button id="dismissOnboarding" class="onboarding-dismiss" type="button">✕</button>
+      </div>
+
+      <div id="statsBar" class="stats-bar" hidden>
+        <span id="statsMonthly">本月 0 条</span>
+        <span class="stats-sep">·</span>
+        <span id="statsTotal">共 0 条</span>
+      </div>
+
+      <nav class="tabs" aria-label="侧边栏视图">
+        <button id="recordsTab" class="tab is-active" type="button" data-tab="records">转写记录</button>
+        <button id="settingsTab" class="tab" type="button" data-tab="settings">设置</button>
+      </nav>
+
+      <section id="recordsView" class="view is-active" data-view="records">
+        <section class="section records-section">
+            <div class="section-head">
+              <div>
+                <h2>转写记录</h2>
+                <p id="historySummary">暂无记录。</p>
+              </div>
+              <div class="history-toolbar" aria-label="历史记录工具栏">
+                <button id="toggleBulkMode" class="secondary compact-button" type="button">多选</button>
+                <div class="postprocess-view-toggle" role="group" aria-label="文案查看版本">
+                  <button id="postprocessViewOriginal" class="postprocess-view-button" type="button" data-postprocess-view="original">原文</button>
+                  <button id="postprocessViewProcessed" class="postprocess-view-button is-active" type="button" data-postprocess-view="processed">整理</button>
+                </div>
+                <button id="postprocessPanelToggle" class="secondary compact-button" type="button" aria-expanded="false" aria-controls="postprocessPanel">⚙</button>
+                <div class="history-menu-wrap">
+                  <button id="historyMoreMenuButton" class="secondary compact-button" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="historyMoreMenu">导出</button>
+                  <div id="historyMoreMenu" class="history-menu" role="menu" hidden>
+                  <button id="exportAllTxt" class="history-menu-item" type="button" role="menuitem">导出 TXT</button>
+                  <button id="exportAllMd" class="history-menu-item" type="button" role="menuitem">导出 MD</button>
+                  <button id="exportAllJson" class="history-menu-item" type="button" role="menuitem">备份 JSON</button>
+                  <div class="history-menu-separator" role="separator"></div>
+                  <button id="importHistoryMerge" class="history-menu-item" type="button" role="menuitem">导入合并</button>
+                  <div class="history-menu-separator" role="separator"></div>
+                  <button id="importHistoryReplace" class="history-menu-item danger" type="button" role="menuitem">覆盖导入</button>
+                  <button id="clearHistory" class="history-menu-item danger" type="button" role="menuitem">清空全部</button>
+                </div>
+              </div>
+              </div>
+              <input id="importHistoryFile" type="file" accept=".json,application/json" hidden>
+            </div>
+          <div id="bulkActions" class="bulk-actions" hidden>
+            <p id="bulkSummary">已选择 0 条。</p>
+            <div class="history-actions">
+              <button id="selectAllVisible" class="secondary" type="button">全选</button>
+              <button id="clearSelection" class="secondary" type="button">取消全选</button>
+              <button id="copySelectedText" class="secondary" type="button">复制选中文案</button>
+              <button id="sendSelectedObsidian" class="secondary" type="button">批量发 Obsidian</button>
+              <button id="syncSelectedFeishu" class="secondary" type="button">批量同步飞书</button>
+              <button id="exportSelectedTxt" class="secondary" type="button">导出 TXT</button>
+              <button id="exportSelectedMd" class="secondary" type="button">导出 MD</button>
+              <button id="exportSelectedJson" class="secondary" type="button">导出 JSON</button>
+              <button id="deleteSelected" class="danger" type="button">删除选中</button>
+            </div>
+          </div>
+          <div class="history-filters">
+            <label class="field search-field">
+              <span>搜索记录</span>
+              <input id="historySearch" type="search" autocomplete="off" spellcheck="false" placeholder="按文案、标题、作者、视频 ID、标签或链接搜索">
+            </label>
+            <label class="field platform-filter-field">
+              <span>平台</span>
+              <select id="historyPlatformFilter">
+                <option value="">全部平台</option>
+                <option value="douyin">抖音</option>
+                <option value="xiaohongshu">小红书</option>
+              </select>
+            </label>
+            <label class="field tag-filter-field">
+              <span>标签筛选</span>
+              <select id="historyTagFilter">
+                <option value="">全部标签</option>
+              </select>
+            </label>
+          </div>
+          <div id="postprocessPanel" class="postprocess-panel" aria-label="转写稿后处理" hidden>
+            <div class="postprocess-head">
+              <span class="postprocess-title">转写稿后处理</span>
+            </div>
+            <div class="postprocess-options">
+              <label class="postprocess-check">
+                <input id="postprocessSegment" type="checkbox">
+                <span>智能分段</span>
+              </label>
+              <label class="postprocess-check">
+                <input id="postprocessNormalizePunctuation" type="checkbox">
+                <span>标点规范化</span>
+              </label>
+              <label class="postprocess-check caution">
+                <input id="postprocessRemoveFillers" type="checkbox">
+                <span>去口水词</span>
+                <small>可能误删，谨慎</small>
+              </label>
+            </div>
+            <p id="postprocessHint" class="postprocess-hint">当前复制 / TXT / MD 导出使用整理版；JSON 备份始终保留原始记录。</p>
+          </div>
+          <div id="history" class="history empty">暂无历史。</div>
+        </section>
+      </section>
+
+      <section id="settingsView" class="view" data-view="settings" hidden>
+        <section class="section collapsible-section setup" data-settings-section="setup">
+          <div class="collapsible-head">
+            <button class="collapsible-toggle" type="button" aria-expanded="false" aria-controls="settingsSectionSetup" data-settings-section-toggle="setup">
+              <span class="collapsible-title">首次使用</span>
+              <span class="collapsible-arrow" aria-hidden="true">▶</span>
+            </button>
+          </div>
+          <div id="settingsSectionSetup" class="collapsible-body" data-settings-section-body="setup" hidden>
+            <ol class="setup-list">
+              <li>保存 API Key</li>
+              <li>点击「测试 API」确认 StepAudio 可用</li>
+              <li>打开单条抖音或小红书视频，点击浮窗「转写」</li>
+            </ol>
+          </div>
+        </section>
+
+        <section class="section collapsible-section settings-section" data-settings-section="api">
+          <div class="collapsible-head">
+            <button class="collapsible-toggle" type="button" aria-expanded="false" aria-controls="settingsSectionApi" data-settings-section-toggle="api">
+              <span class="collapsible-title">API 设置</span>
+              <span class="collapsible-arrow" aria-hidden="true">▶</span>
+            </button>
+          </div>
+          <div id="settingsSectionApi" class="collapsible-body" data-settings-section-body="api" hidden>
+            <label class="field">
+              <span>Endpoint</span>
+              <input id="endpoint" autocomplete="off" spellcheck="false">
+            </label>
+            <label class="field">
+              <span>API Key</span>
+              <div class="key-row">
+                <input id="apiKey" class="secret-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="粘贴 StepAudio API Key">
+                <button id="pasteApiKey" class="small" type="button">粘贴</button>
+                <button id="toggleApiKey" class="small" type="button">显示</button>
+              </div>
+            </label>
+            <div class="grid">
+              <label class="field">
+                <span>Model</span>
+                <input id="model" autocomplete="off" spellcheck="false">
+              </label>
+              <label class="field">
+                <span>Language</span>
+                <input id="language" autocomplete="off" spellcheck="false">
+              </label>
+            </div>
+            <label class="field">
+              <span>Hotwords</span>
+              <textarea id="hotwords" rows="3" placeholder="每行一个热词，可留空"></textarea>
+            </label>
+            <label class="field">
+              <span>Prompt（预留）</span>
+              <textarea id="prompt" rows="3" placeholder="官方 StepAudio ASR 暂不发送，可留空"></textarea>
+            </label>
+            <label class="field">
+              <span>音频转码</span>
+              <select id="convertToPcm">
+                <option value="auto">自动：不支持格式时转 16k PCM</option>
+                <option value="always">总是转 16k PCM</option>
+                <option value="never">从不转码</option>
+              </select>
+            </label>
+            <label class="check">
+              <input id="enableItn" type="checkbox">
+              <span>开启 ITN 文本规范化</span>
+            </label>
+          </div>
+        </section>
+
+        <section class="section collapsible-section" data-settings-section="sync">
+          <div class="collapsible-head">
+            <button class="collapsible-toggle" type="button" aria-expanded="false" aria-controls="settingsSectionSync" data-settings-section-toggle="sync">
+              <span class="collapsible-title">同步设置</span>
+              <span class="collapsible-arrow" aria-hidden="true">▶</span>
+            </button>
+          </div>
+          <div id="settingsSectionSync" class="collapsible-body" data-settings-section-body="sync" hidden>
+            <p class="settings-note">凭证仅保存在本地 chrome.storage.local。</p>
+            <div class="sync-block">
+              <h3>Obsidian</h3>
+              <div class="grid">
+                <label class="field">
+                  <span>Vault 名称（必填）</span>
+                  <input id="syncObsidianVault" autocomplete="off" spellcheck="false" placeholder="例如：我的知识库">
+                </label>
+                <label class="field">
+                  <span>笔记文件夹 / 路径（可选）</span>
+                  <input id="syncObsidianFolder" autocomplete="off" spellcheck="false" placeholder="例如：转写稿">
+                </label>
+              </div>
+            </div>
+            <div class="sync-block">
+              <h3>飞书多维表格</h3>
+              <div class="grid">
+                <label class="field">
+                  <span>app_id</span>
+                  <input id="syncFeishuAppId" autocomplete="off" spellcheck="false">
+                </label>
+                <label class="field">
+                  <span>app_secret</span>
+                  <input id="syncFeishuAppSecret" class="secret-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false">
+                </label>
+                <label class="field is-wide">
+                  <span>多维表格链接</span>
+                  <input id="syncFeishuBitableUrl" autocomplete="off" spellcheck="false" placeholder="例如：https://example.feishu.cn/base/bascnxxxx?table=tblxxxx&view=vewxxxx">
+                </label>
+              </div>
+              <div class="sync-field-map" aria-label="飞书字段名映射">
+                <label class="field">
+                  <span>标题字段</span>
+                  <input id="syncFeishuFieldTitle" autocomplete="off" spellcheck="false">
+                </label>
+                <label class="field">
+                  <span>文案字段</span>
+                  <input id="syncFeishuFieldText" autocomplete="off" spellcheck="false">
+                </label>
+                <label class="field">
+                  <span>作者字段</span>
+                  <input id="syncFeishuFieldAuthor" autocomplete="off" spellcheck="false">
+                </label>
+                <label class="field">
+                  <span>平台字段</span>
+                  <input id="syncFeishuFieldPlatform" autocomplete="off" spellcheck="false">
+                </label>
+                <label class="field">
+                  <span>链接字段</span>
+                  <input id="syncFeishuFieldLink" autocomplete="off" spellcheck="false">
+                </label>
+                <label class="field">
+                  <span>视频ID字段</span>
+                  <input id="syncFeishuFieldVideoId" autocomplete="off" spellcheck="false">
+                </label>
+                <label class="field">
+                  <span>字数字段</span>
+                  <input id="syncFeishuFieldWordCount" autocomplete="off" spellcheck="false">
+                </label>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section collapsible-section" data-settings-section="diagnostics">
+          <div class="collapsible-head">
+            <button class="collapsible-toggle" type="button" aria-expanded="false" aria-controls="settingsSectionDiagnostics" data-settings-section-toggle="diagnostics">
+              <span class="collapsible-title">诊断</span>
+              <span class="collapsible-arrow" aria-hidden="true">▶</span>
+            </button>
+            <button id="copyDiagnostics" class="ghost" type="button">复制诊断</button>
+          </div>
+          <div id="settingsSectionDiagnostics" class="collapsible-body" data-settings-section-body="diagnostics" hidden>
+            <p>复制不含 API Key 和转写正文的状态报告。</p>
+          </div>
+        </section>
+
+        <div class="settings-actions">
+          <button id="save" class="primary">保存设置</button>
+          <button id="checkSettings" class="secondary" type="button">测试 API</button>
+        </div>
+      </section>
+
+      <div id="status" class="status" role="status"></div>
+    </main>
+    <script src="diagnostics.js"></script>
+    <script src="postprocess.js"></script>
+    <script src="sync-core.js"></script>
+    <script src="sidepanel.js"></script>
+  </body>
+</html>
